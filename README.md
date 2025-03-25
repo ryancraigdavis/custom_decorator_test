@@ -124,9 +124,9 @@ When you create a decorator like our simple `repeat_thrice` example, you're actu
 4. The module name (`__module__`)
 5. Other attributes and properties
 
-## Issues with Our Simple Example
+## Issues with not using @functools.wraps
 
-Without `functools.wraps`, our current decorator has these problems:
+Without `functools.wraps`, our decorator would have these problems:
 
 ```python
 def repeat_thrice(func):
@@ -150,7 +150,7 @@ help(greet)            # Shows wrapper's signature, not greet's
 
 ## Improved Version with `functools.wraps`
 
-Here's how we should improve our decorator using `functools`:
+Here's how we improve our decorator using `functools`:
 
 ```python
 import functools
@@ -183,3 +183,28 @@ Beyond `wraps`, `functools` provides other useful utilities:
 - `total_ordering`: For automatically generating comparison methods
 
 In production code, you should almost always use `functools.wraps` when writing decorators to ensure proper metadata preservation, especially if others will be using your decorated functions.
+
+# How do we then test a function that has been wrapped with a decorator?
+
+When testing functions that have been wrapped with decorators, you may want to test the core function independently from the behavior added by the decorator. Here are some approaches to accomplish this:
+
+## Accessing the Original Function with `__wrapped__`
+
+If your decorator uses `functools.wraps` (recommended practice), you can access the original undecorated function via the `__wrapped__` attribute:
+
+```python
+@repeat_thrice
+def my_function():
+    # function implementation
+
+# In your test
+def test_original_function():
+    # Access the original function without the decorator
+    original_function = my_function.__wrapped__
+
+    # Test the original function directly
+    result = original_function()
+    assert result == expected_value
+```
+
+Note: Your type checker might flag `__wrapped__` as unknown, but you can safely add a `# type: ignore` comment if needed.
