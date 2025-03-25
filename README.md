@@ -109,3 +109,77 @@ def test_repeat_thrice_decorator(mocker):
 - This confirms that our decorator preserves and correctly passes all arguments to each function call
 
 This test comprehensively validates that our decorator functions as expected: repeating the function call 3 times, preserving all arguments, and returning the final result.
+
+# `functools` vs Simple Decorators: Understanding the Difference
+
+The `functools` library provides several higher-order functions and utilities for working with functions and callable objects. The most commonly used function when writing decorators is `functools.wraps`, which helps preserve metadata about the decorated function.
+
+## What `functools.wraps` Does
+
+When you create a decorator like our simple `repeat_thrice` example, you're actually replacing the original function with your wrapper function. This replacement loses important metadata about the original function, including:
+
+1. The function name (`__name__`)
+2. The docstring (`__doc__`)
+3. The parameter annotations (`__annotations__`)
+4. The module name (`__module__`)
+5. Other attributes and properties
+
+## Issues with Our Simple Example
+
+Without `functools.wraps`, our current decorator has these problems:
+
+```python
+def repeat_thrice(func):
+    def wrapper(*args, **kwargs):
+        result = None
+        for _ in range(3):
+            result = func(*args, **kwargs)
+        return result
+    return wrapper
+
+@repeat_thrice
+def greet(name):
+    """Greets a person by name."""
+    return f"Hello, {name}!"
+
+# The following would show problems:
+print(greet.__name__)  # 'wrapper' instead of 'greet'
+print(greet.__doc__)   # None instead of 'Greets a person by name.'
+help(greet)            # Shows wrapper's signature, not greet's
+```
+
+## Improved Version with `functools.wraps`
+
+Here's how we should improve our decorator using `functools`:
+
+```python
+import functools
+
+def repeat_thrice(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        result = None
+        for _ in range(3):
+            result = func(*args, **kwargs)
+        return result
+    return wrapper
+```
+
+## Why `functools.wraps` is Important
+
+1. **Debugging and Introspection**: Proper function names and docstrings make debugging easier
+2. **Documentation Tools**: Tools like Sphinx rely on docstrings and function signatures
+3. **API Consistency**: Preserves the original function's interface for users of your code
+4. **Function Chaining**: Multiple decorators work better when metadata is preserved
+
+## Other Useful `functools` Features
+
+Beyond `wraps`, `functools` provides other useful utilities:
+
+- `lru_cache`: For memoization (caching function results)
+- `partial`: For creating partially applied functions
+- `reduce`: For applying a function cumulatively to sequence items
+- `singledispatch`: For creating single-dispatch generic functions
+- `total_ordering`: For automatically generating comparison methods
+
+In production code, you should almost always use `functools.wraps` when writing decorators to ensure proper metadata preservation, especially if others will be using your decorated functions.

@@ -19,5 +19,18 @@ def get_chuck_norris_joke():
     return joke_data
 
 
+@decorator.repeat_thrice_func_tools
+def get_chuck_norris_joke_func_tools():
+    """Simple function to test the repeat_thrice_func_tools decorator."""
+    url = "https://api.chucknorris.io/jokes/random"
+
+    response = requests.get(url)
+    joke_data = response.json()
+    print(f"Random Chuck Norris joke: {joke_data['value']}")
+
+    return joke_data
+
+
 if __name__ == "__main__":
+    get_chuck_norris_joke_func_tools()
     get_chuck_norris_joke()
