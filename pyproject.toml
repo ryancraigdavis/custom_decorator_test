@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "custom-decorator-test"
+version = "0.1.0"
+description = "Custom decorator in Python - mocking test"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[[tool.poetry.packages]]
+include = "custom_decorator_test"
+from = "src"
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
